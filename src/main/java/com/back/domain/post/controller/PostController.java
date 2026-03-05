@@ -18,7 +18,7 @@ public class PostController {
     @ResponseBody
     public String writeForm() {
 
-        return getWriteFrom();
+        return getWriteFrom("", "");
     }
 
     @PostMapping("/posts/write")
@@ -30,14 +30,14 @@ public class PostController {
             return """
                     <div style="color:red">제목을 입력해주세요.</div>
                     %s
-                    """.formatted(getWriteFrom());
+                    """.formatted(getWriteFrom(title, content));
         }
 
         if(content.isBlank()){
             return """
                     <div style="color:red">내용을 입력해주세요.</div>
                     %s
-                    """.formatted(getWriteFrom());
+                    """.formatted(getWriteFrom(title, content));
         }
 
         Post post = postService.write(title, content);
@@ -45,16 +45,16 @@ public class PostController {
         return "%d번 글이 작성되었습니다.".formatted(post.getId());
     }
 
-    private String getWriteFrom(){
+    private String getWriteFrom(String title, String content){
         return """
                 <form method="post" action="/posts/write">
-                  <input type="text" name="title">
+                  <input type="text" name="title" value="%s" autoFocus>
                   <br>
-                  <textarea name="content"></textarea>
+                  <textarea name="content">%s</textarea>
                   <br>
                   <input type="submit" value="작성">
                 </form>
-                """;
+                """.formatted(title, content);
     }
 
 }
