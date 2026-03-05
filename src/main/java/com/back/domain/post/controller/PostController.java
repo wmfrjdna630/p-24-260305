@@ -29,10 +29,10 @@ public class PostController {
     @AllArgsConstructor
     public static class WriteRequestForm {
         @Size(min=2, max=10)
-        @NotBlank
+        @NotBlank(message = "제목은 필수")
         private String title;
 
-        @NotBlank
+        @NotBlank(message = "내용은 필수")
         @Size(min=2, max=100)
         private String content;
     }
