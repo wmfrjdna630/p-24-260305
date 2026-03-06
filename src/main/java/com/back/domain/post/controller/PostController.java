@@ -6,10 +6,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.stream.Collectors;
@@ -22,11 +25,11 @@ public class PostController {
 
     @GetMapping("/posts/write-form")
     public String writeForm() {
-
         return "write";
     }
 
     @AllArgsConstructor
+    @Getter
     public static class WriteRequestForm {
         @Size(min=2, max=10, message = "3-제목은 2자 이상 10자 이하로 입력해주세요.")
         @NotBlank(message = "1-제목은 필수입니다.")
@@ -38,7 +41,8 @@ public class PostController {
     }
 
     @PostMapping("/posts/write")
-    public String write(@Valid WriteRequestForm form, BindingResult bindingResult) {
+    public String write(@Valid @ModelAttribute("form") WriteRequestForm form, BindingResult bindingResult,
+                        Model model) {
 
         if(bindingResult.hasErrors()) {
 
@@ -52,12 +56,16 @@ public class PostController {
                     .sorted()
                     .collect(Collectors.joining("\n"));
 
+            // 템플릿 응답
+            model.addAttribute("errorMessages", errorMessages);
             return "write";
         }
 
         Post post = postService.write(form.title, form.content);
 
-        return "%d번 글이 작성되었습니다.".formatted(post.getId());
+        // 템플릿 응답
+        model.addAttribute("id", post.getId());
+        return "writeDone";
     }
 
 }
