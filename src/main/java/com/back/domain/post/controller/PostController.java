@@ -9,9 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,12 +31,12 @@ public class PostController {
 
     @AllArgsConstructor
     public static class WriteRequestForm {
-        @Size(min=2, max=10)
-        @NotBlank(message = "제목은 필수")
+        @Size(min=2, max=10, message = "3-제목은 2자 이상 10자 이하로 입력해주세요.")
+        @NotBlank(message = "1-제목은 필수입니다.")
         private String title;
 
-        @NotBlank(message = "내용은 필수")
-        @Size(min=2, max=100)
+        @NotBlank(message = "2-내용은 필수입니다.")
+        @Size(min=2, max=100, message = "4-내용은 2자 이상 100자 이하로 입력해주세요.")
         private String content;
     }
 
@@ -41,12 +44,15 @@ public class PostController {
     @ResponseBody
     public String write(@Valid WriteRequestForm form, BindingResult bindingResult) {
 
-        if(bindingResult.hasErrors()){
+        if(bindingResult.hasErrors()) {
 
-            String filedName = bindingResult.getFieldError().getField();
-            String errorMessage = bindingResult.getFieldError().getDefaultMessage();
+            String errorMessages = bindingResult.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .sorted()
+                    .collect(Collectors.joining("<br>"));
 
-            return getWriteForm(errorMessage, form.title, form.content, filedName);
+            return getWriteForm(errorMessages, form.title, form.content, "title");
         }
 
         Post post = postService.write(form.title, form.content);
