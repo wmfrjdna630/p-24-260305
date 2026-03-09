@@ -89,7 +89,6 @@ public class PostController {
         return "redirect:/posts/%d".formatted(post.getId()); // GET요청
     }
 
-
     @GetMapping("/posts")
     @Transactional(readOnly = true)
     public String list(Model model) {
