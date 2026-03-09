@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<th:block th:fragment="formErrorsFragment">
+    <ul th:if="${#fields.hasAnyErrors()}" style="color:red">
+        <li th:each="err : ${#fields.allErrors().stream().sorted()}"
+            th:with="errorFieldName = ${err.split('-')[1]},
+                 errorMessage = ${err.split('-')[2]}"
+
+            th:text="${errorMessage}"
+            th:data-error-field="${errorFieldName}"
+        ></li>
+    </ul>
+    <script>
+        const li = document.querySelector("ul li");
+        const errorFieldName = li.dataset.errorField;
+
+        if(errorFieldName.length > 0) {
+            const form = document.querySelector("form");
+
+            setTimeout(() => {
+                form[errorFieldName].focus();
+            }, 1);
+        }
+    </script>
+</th:block>
+</body>
+</html>
